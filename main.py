@@ -7,6 +7,8 @@ import json
 import re
 
 # Define a function to create a folder for the channel if it doesn't exist
+
+
 def create_channel_folder(channel_name):
     folder_path = f"./{channel_name}"
     if not os.path.exists(folder_path):
@@ -14,22 +16,26 @@ def create_channel_folder(channel_name):
     return folder_path
 
 # Function to clean the filename from invalid characters
+
+
 def clean_filename(filename):
     return re.sub(r'[^\w\s.-]', '', filename)
 
 # Convert mp4 to mp3
-def convert_mp4_to_mp3(input_file, output_file): 
+
+
+def convert_mp4_to_mp3(input_file, output_file):
     ffmpeg_cmd = [
         "ffmpeg",
         "-i", input_file,
-        "-vn", 
+        "-vn",
         "-acodec", "libmp3lame",
         "-ab", "192k",
         "-ar", "44100",
         "-y",
         output_file
     ]
-    try: 
+    try:
         subprocess.run(ffmpeg_cmd, check=True)
         print("Successfully Converted :)")
         # Remove the MP4 file after successful conversion
@@ -37,6 +43,7 @@ def convert_mp4_to_mp3(input_file, output_file):
         print("Removed the original MP4 file.")
     except subprocess.CalledProcessError as e:
         print("Conversion failed :(")
+
 
 # Define the list of channels to scrape
 channels_to_scrape = [
@@ -74,20 +81,21 @@ for channel_name in channels_to_scrape:
     for video in videos:
         video_id = video['videoId']
         yt = YouTube(f'http://youtube.com/watch?v={video_id}')
-        title = yt.title
+        title = clean_filename(yt.title)
+        filename = title + ".mp4"
         audio = yt.streams.get_audio_only()
 
         # Download the audio
         print(f"Downloading audio for {title}")
-        audio.download(max_retries=3, output_path=channel_folder)
+        audio.download(
+            max_retries=3, output_path=channel_folder, filename=filename)
 
         # Convert MP4 to MP3
-        mp4_file_name_cleaned = clean_filename(title) + ".mp4"
+        mp4_file_name_cleaned = title + ".mp4"
         mp4_file_path = os.path.join(channel_folder, mp4_file_name_cleaned)
-        mp3_file_name_cleaned = clean_filename(title) + ".mp3"
+        mp3_file_name_cleaned = title + ".mp3"
         mp3_file_path = os.path.join(channel_folder, mp3_file_name_cleaned)
         convert_mp4_to_mp3(mp4_file_path, mp3_file_path)
-
 
         # Transcribe the audio
         model = whisper.load_model("base")
@@ -113,6 +121,7 @@ for channel_name in channels_to_scrape:
         video_details.append(video_info)
 
         # Write the list of video details to a JSON file
-        json_filename = os.path.join(channel_folder, f"{channel_name}_video_details.json")
+        json_filename = os.path.join(
+            channel_folder, f"{channel_name}_video_details.json")
         with open(json_filename, "w") as json_file:
             json.dump(video_details, json_file, indent=4)
