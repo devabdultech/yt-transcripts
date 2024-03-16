@@ -47,24 +47,21 @@ def convert_mp4_to_mp3(input_file, output_file):
 
 # Define the list of channels to scrape
 channels_to_scrape = [
-    "CoachKonpeki",
-    "zapper7573",
-    "kazebuchi",
-    "eSportsAndy",
-    "theguide_val",
-    "SenaVL",
-    "DreamWellYT",
-    "wasabi_plays",
-    "skillcappedvalorant",
-    "ddoshii",
+    # "eSportsAndy",
+    # "theguide_val",
+    # "SenaVL",
+    # "DreamWellYT",
+    # "wasabi_plays",
+    # "skillcappedvalorant",
+    # "ddoshii",
     "platoonval",
-    "FocusFPS",
-    "nbrainyvalo",
-    "rooneyFPS",
-    "SeroGuides",
-    "WestProter",
-    "rbguidesval",
-    "sondo301_"
+    # "FocusFPS",
+    # "nbrainyvalo",
+    # "rooneyFPS",
+    # "SeroGuides",
+    # "WestProter",
+    # "rbguidesval",
+    # "sondo301_"
 ]
 
 for channel_name in channels_to_scrape:
@@ -83,7 +80,7 @@ for channel_name in channels_to_scrape:
         yt = YouTube(f'http://youtube.com/watch?v={video_id}')
         title = clean_filename(yt.title)
         filename = title + ".mp4"
-        audio = yt.streams.get_audio_only()
+        audio = yt.streams.filter(only_audio=True).first()
 
         # Download the audio
         print(f"Downloading audio for {title}")
