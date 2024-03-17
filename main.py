@@ -1,3 +1,4 @@
+import whisper
 import os
 import scrapetube
 from pytube import YouTube
