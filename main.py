@@ -1,4 +1,3 @@
-import whisper
 import os
 import scrapetube
 from pytube import YouTube
@@ -45,14 +44,8 @@ def convert_mp4_to_mp3(input_file, output_file):
 
 # Define the list of channels to scrape
 channels_to_scrape = [
-    "rbguidesval",
-    "FocusFPS",
-    "platoonval",
-    "sondo301_",
-    "theguide_val",
-    "WestProter",
-    "SenaVL",
-    "nbrainyvalo",
+    # "SenaVL",
+    # "nbrainyvalo",
     "CoachKonpeki",
     "wasabi_plays",
     "skillcappedvalorant"
@@ -107,15 +100,11 @@ for channel_name in channels_to_scrape:
             convert_mp4_to_mp3(mp4_file_path, mp3_file_path)
 
             # Transcribe the audio
-            model = whisper.load_model("base")
             print(Fore.CYAN + f"Transcribing audio for {title}")
-            try:
-                result = model.transcribe(mp3_file_path)
-                transcription_text = result["text"]
-                print(Fore.GREEN + "Transcription successful.")
-            except Exception as e:
-                print(Fore.RED + f"Transcription failed for {title}: {str(e)}")
-                transcription_text = ""
+            model = whisper.load_model("base")
+            result = model.transcribe(mp3_file_path)
+            transcription_text = result["text"]
+            print(Fore.GREEN + "Transcription successful.")
 
             # Create a JSON object containing video details
             video_info = {
@@ -139,9 +128,9 @@ for channel_name in channels_to_scrape:
             age_restricted_videos.append(video_id)
             continue
 
-        # Write the list of video details to a JSON file after processing each video
-        with open(json_filename, "w") as json_file:
-            json.dump(video_details, json_file, indent=4)
+    # Write the list of video details to a JSON file after processing each video
+    with open(json_filename, "w") as json_file:
+        json.dump(video_details, json_file, indent=4)
 
     # Save the IDs of age-restricted videos to a JSON file
     age_restricted_json_filename = os.path.join(channel_folder, f"{channel_name}_age_restricted_videos.json")
