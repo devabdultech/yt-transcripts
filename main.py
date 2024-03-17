@@ -46,7 +46,7 @@ def convert_mp4_to_mp3(input_file, output_file):
 # Define the list of channels to scrape
 channels_to_scrape = [
     # "SenaVL",
-    # "nbrainyvalo",
+    "nbrainyvalo",
     "CoachKonpeki",
     "wasabi_plays",
     "skillcappedvalorant"
@@ -91,7 +91,7 @@ for channel_name in channels_to_scrape:
 
             # Download the audio
             print(Fore.CYAN + f"Downloading audio for {title}")
-            audio.download(max_retries=3, output_path=channel_folder, filename=filename)
+            audio.download(max_retries=5, output_path=channel_folder, filename=filename)
 
             # Convert MP4 to MP3
             mp4_file_name_cleaned = title + ".mp4"
@@ -101,11 +101,15 @@ for channel_name in channels_to_scrape:
             convert_mp4_to_mp3(mp4_file_path, mp3_file_path)
 
             # Transcribe the audio
-            print(Fore.CYAN + f"Transcribing audio for {title}")
             model = whisper.load_model("base")
-            result = model.transcribe(mp3_file_path)
-            transcription_text = result["text"]
-            print(Fore.GREEN + "Transcription successful.")
+            print(Fore.CYAN + f"Transcribing audio for {title}")
+            try:
+                result = model.transcribe(mp3_file_path)
+                transcription_text = result["text"]
+                print(Fore.GREEN + "Transcription successful.")
+            except Exception as e:
+                print(Fore.RED + f"Transcription failed for {title}: {str(e)}")
+                transcription_text = ""
 
             # Create a JSON object containing video details
             video_info = {
@@ -129,9 +133,9 @@ for channel_name in channels_to_scrape:
             age_restricted_videos.append(video_id)
             continue
 
-    # Write the list of video details to a JSON file after processing each video
-    with open(json_filename, "w") as json_file:
-        json.dump(video_details, json_file, indent=4)
+        # Write the list of video details to a JSON file after processing each video
+        with open(json_filename, "w") as json_file:
+            json.dump(video_details, json_file, indent=4)
 
     # Save the IDs of age-restricted videos to a JSON file
     age_restricted_json_filename = os.path.join(channel_folder, f"{channel_name}_age_restricted_videos.json")
